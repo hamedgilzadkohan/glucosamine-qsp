@@ -53,7 +53,7 @@ function calibration_results = M04_set_R_parameters()
     calibrated_params.IC50_deg    = 3.0;      % IC50 for degradation inhibition (µug/mL)
     calibrated_params.alpha_struct = 150;     % Pain sensitivity to GAG loss
     calibrated_params.beta_drug   = 5.0;      % Direct drug effect on pain
-    calibrated_params.EC50_pain   = 3.0;      % EC50 for pain relief (µug/mL)
+    calibrated_params.EC50_pain   = 3.0;      % EC50 for pain relief (µg/mL)
     calibrated_params.kpl         = 0.02;     % Placebo effect rate constant (/day)
     
     %% =============================================================================
@@ -72,7 +72,7 @@ function calibration_results = M04_set_R_parameters()
     fprintf('  F_HCl       = %.2f\n', calibrated_params.F_HCl);
     fprintf('  GAG_0       = %.2f\n', calibrated_params.GAG_0);
     fprintf('  JSW_0       = %.1f mm\n', calibrated_params.JSW_0);
-    fprintf('  IC50_deg    = %.1f µug/mL\n', calibrated_params.IC50_deg);
+    fprintf('  IC50_deg    = %.1f µg/mL\n', calibrated_params.IC50_deg);
     fprintf('  kpl         = %.3f /day\n', calibrated_params.kpl);
     
     %% =============================================================================
