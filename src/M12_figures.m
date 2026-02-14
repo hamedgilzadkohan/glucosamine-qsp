@@ -37,11 +37,20 @@ fs_title = 14;
 fs_axis = 11;
 fs_legend = 9;
 
+% Parameter display labels (proper TeX subscripts for figures)
+param_display_map = containers.Map({...
+    'k_syn', 'k_deg', 'GAG_0', 'JSW_0', 'F_sulfate', 'F_HCl', ...
+    'Imax_deg', 'IC50_deg', 'Emax_syn', 'EC50_syn', 'beta_drug', ...
+    'alpha_struct', 'kpl', 'Pmax', 'Pain_0', 'EC50_pain'}, {...
+    'k_{syn}', 'k_{deg}', 'GAG_0', 'JSW_0', 'F_{sulfate}', 'F_{HCl}', ...
+    'I_{max,deg}', 'IC_{50,deg}', 'E_{max,syn}', 'EC_{50,syn}', '\beta_{drug}', ...
+    '\alpha_{struct}', 'k_{pl}', 'P_{max}', 'Pain_0', 'EC_{50,pain}'});
+
 %% =============================================================================
-%% FIGURE 1: MODEL CALIBRATION (3 vertical panels)
+%% FIGURE 2: MODEL CALIBRATION (3 vertical panels)
 %% =============================================================================
 
-fprintf('Generating Figure 1: Model Calibration...\n');
+fprintf('Generating Figure 2: Model Calibration...\n');
 
 sim_p = simulate_glucosamine(params, 1500, 156, 'sulfate', false);
 sim_t = simulate_glucosamine(params, 1500, 156, 'sulfate', true);
@@ -121,16 +130,16 @@ xlim([0, 26]); ylim([25, 55]);
 legend({'GH 1500mg (HCl)', 'Placebo'}, 'Location', 'northeast', 'FontSize', fs_legend);
 box on; hold off;
 
-saveas(fig1, 'figures/Fig1_calibration.png');
-saveas(fig1, 'figures/Fig1_calibration.fig');
-fprintf('  Saved: figures/Fig1_calibration.png\n');
+saveas(fig1, 'figures/Fig2_calibration.png');
+saveas(fig1, 'figures/Fig2_calibration.fig');
+fprintf('  Saved: figures/Fig2_calibration.png\n');
 fprintf('  Treatment Effect: %.3f mm\n', sim_t.JSW_change(end) - sim_p.JSW_change(end));
 
 %% =============================================================================
-%% FIGURE 2: SENSITIVITY ANALYSIS (3 tornado plots)
+%% FIGURE 3: SENSITIVITY ANALYSIS (3 tornado plots)
 %% =============================================================================
 
-fprintf('Generating Figure 2: Sensitivity Analysis...\n');
+fprintf('Generating Figure 3: Sensitivity Analysis...\n');
 
 try
     load('model_output/sensitivity_analysis_results.mat', 'sensitivity_results');
@@ -162,7 +171,8 @@ try
         plot(hi_val, i, 'o', 'MarkerSize', 6, 'MarkerFaceColor', col_treat, 'MarkerEdgeColor', 'k');
     end
     xline(baseline.te, '--', 'Color', col_gray, 'LineWidth', 1.5);
-    set(gca, 'YTick', 1:height(sens_a), 'YTickLabel', sens_a.parameter, 'FontSize', 9);
+    labels_a = cellfun(@(x) param_display_map(x), sens_a.parameter, 'UniformOutput', false);
+    set(gca, 'YTick', 1:height(sens_a), 'YTickLabel', labels_a, 'FontSize', 9, 'TickLabelInterpreter', 'tex');
     ylim([0.5, n_show + 0.5]);
     xlabel('JSW Treatment Effect (mm)', 'FontSize', fs_axis);
     title({'A. Sensitivity: 3-Year JSW Treatment Effect'; ...
@@ -190,7 +200,8 @@ try
         plot(hi_val, i, 'o', 'MarkerSize', 6, 'MarkerFaceColor', col_treat, 'MarkerEdgeColor', 'k');
     end
     xline(baseline.jsw_placebo, '--', 'Color', col_gray, 'LineWidth', 1.5);
-    set(gca, 'YTick', 1:height(sens_b), 'YTickLabel', sens_b.parameter, 'FontSize', 9);
+    labels_b = cellfun(@(x) param_display_map(x), sens_b.parameter, 'UniformOutput', false);
+    set(gca, 'YTick', 1:height(sens_b), 'YTickLabel', labels_b, 'FontSize', 9, 'TickLabelInterpreter', 'tex');
     ylim([0.5, n_show + 0.5]);
     xlabel('JSW Y3 Placebo (mm)', 'FontSize', fs_axis);
     title({'B. Sensitivity: 3-Year Placebo JSW Change'; ...
@@ -218,7 +229,8 @@ try
         plot(hi_val, i, 'o', 'MarkerSize', 6, 'MarkerFaceColor', col_treat, 'MarkerEdgeColor', 'k');
     end
     xline(baseline.pain_24w, '--', 'Color', col_gray, 'LineWidth', 1.5);
-    set(gca, 'YTick', 1:height(sens_c), 'YTickLabel', sens_c.parameter, 'FontSize', 9);
+    labels_c = cellfun(@(x) param_display_map(x), sens_c.parameter, 'UniformOutput', false);
+    set(gca, 'YTick', 1:height(sens_c), 'YTickLabel', labels_c, 'FontSize', 9, 'TickLabelInterpreter', 'tex');
     ylim([0.5, n_show + 0.5]);
     xlabel('Pain W24 Placebo (points)', 'FontSize', fs_axis);
     title({'C. Sensitivity: Week 24 Placebo Pain'; ...
@@ -226,9 +238,9 @@ try
           'FontSize', fs_title, 'FontWeight', 'bold');
     box on; hold off;
     
-    saveas(fig2, 'figures/Fig2_sensitivity.png');
-    saveas(fig2, 'figures/Fig2_sensitivity.fig');
-    fprintf('  Saved: figures/Fig2_sensitivity.png\n');
+    saveas(fig2, 'figures/Fig3_sensitivity.png');
+    saveas(fig2, 'figures/Fig3_sensitivity.fig');
+    fprintf('  Saved: figures/Fig3_sensitivity.png\n');
     fprintf('  Baseline TE: %.3f mm, Placebo: %.3f mm, Pain: %.1f\n', ...
             baseline.te, baseline.jsw_placebo, baseline.pain_24w);
 catch ME
@@ -236,10 +248,10 @@ catch ME
 end
 
 %% =============================================================================
-%% FIGURE 3: VIRTUAL POPULATION (4 panels)
+%% FIGURE 4: VIRTUAL POPULATION (4 panels)
 %% =============================================================================
 
-fprintf('Generating Figure 3: Virtual Population...\n');
+fprintf('Generating Figure 4: Virtual Population...\n');
 
 try
     load('model_output/virtual_population_results.mat', 'vpop_results');
@@ -379,16 +391,16 @@ try
          'HorizontalAlignment', 'right');
     xlim([-0.2, 1]); box on; hold off;
     
-    saveas(fig3, 'figures/Fig3_virtual_population.png');
-    saveas(fig3, 'figures/Fig3_virtual_population.fig');
-    fprintf('  Saved: figures/Fig3_virtual_population.png\n');
+    saveas(fig3, 'figures/Fig4_virtual_population.png');
+    saveas(fig3, 'figures/Fig4_virtual_population.fig');
+    fprintf('  Saved: figures/Fig4_virtual_population.png\n');
     fprintf('  Median TE: %.3f mm, %.1f%% show benefit\n', te_median, pct_benefit);
 catch ME
     warning('Virtual population figure error: %s', ME.message);
 end
 
 %% =============================================================================
-%% FIGURE 4: EXTERNAL VALIDATION (2x2) - FIXED TITLE/SUBTITLE OVERLAP
+%% FIGURE 5: EXTERNAL VALIDATION (2x2) - FIXED TITLE/SUBTITLE OVERLAP
 %% =============================================================================
 %%
 %% FIX SUMMARY:
@@ -398,7 +410,7 @@ end
 %%               clipping, and increased ylim to accommodate label text.
 %%
 
-fprintf('Generating Figure 4: External Validation...\n');
+fprintf('Generating Figure 5: External Validation...\n');
 
 try
     load('model_output/validation_results.mat', 'validation_results');
@@ -573,18 +585,18 @@ try
     text(0, -0.12, 'D', 'Units', 'normalized', 'FontSize', 16, 'FontWeight', 'bold');
     ylim([0, 18]); box on; hold off;
     
-    saveas(fig4, 'figures/Fig4_validation.png');
-    saveas(fig4, 'figures/Fig4_validation.fig');
-    fprintf('  Saved: figures/Fig4_validation.png\n');
+    saveas(fig4, 'figures/Fig5_validation.png');
+    saveas(fig4, 'figures/Fig5_validation.fig');
+    fprintf('  Saved: figures/Fig5_validation.png\n');
 catch ME
     warning('Validation figure error: %s', ME.message);
 end
 
 %% =============================================================================
-%% FIGURE 5: TRANSLATIONAL SIMULATIONS (2x2)
+%% FIGURE 6: TRANSLATIONAL SIMULATIONS (2x2)
 %% =============================================================================
 
-fprintf('Generating Figure 5: Translational Simulations...\n');
+fprintf('Generating Figure 6: Translational Simulations...\n');
 
 try
     load('model_output/translational_simulations.mat', 'trans_results');
@@ -701,9 +713,9 @@ try
     y_max_strat = max(strat.jsw_te_p95) * 1.20;  % extra space for % labels above error bars
     ylim([0, y_max_strat]); box on; hold off;
     
-    saveas(fig5, 'figures/Fig5_translational.png');
-    saveas(fig5, 'figures/Fig5_translational.fig');
-    fprintf('  Saved: figures/Fig5_translational.png\n');
+    saveas(fig5, 'figures/Fig6_translational.png');
+    saveas(fig5, 'figures/Fig6_translational.fig');
+    fprintf('  Saved: figures/Fig6_translational.png\n');
 catch ME
     warning('Translational figure error: %s', ME.message);
 end
@@ -716,9 +728,9 @@ fprintf('=============================================================\n');
 fprintf('ALL 5 FIGURES COMPLETE\n');
 fprintf('=============================================================\n');
 fprintf('Saved to: figures/\n');
-fprintf('  - Fig1_calibration.png\n');
-fprintf('  - Fig2_sensitivity.png\n');
-fprintf('  - Fig3_virtual_population.png\n');
-fprintf('  - Fig4_validation.png\n');
-fprintf('  - Fig5_translational.png\n');
+fprintf('  - Fig2_calibration.png\n');
+fprintf('  - Fig3_sensitivity.png\n');
+fprintf('  - Fig4_virtual_population.png\n');
+fprintf('  - Fig5_validation.png\n');
+fprintf('  - Fig6_translational.png\n');
 fprintf('=============================================================\n');
