@@ -58,7 +58,7 @@ glucosamine-qsp/
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/<>/glucosamine-qsp.git
+   git clone https://github.com/hamedgilzadkohan/glucosamine-qsp.git
    cd glucosamine-qsp
    ```
 
