@@ -18,6 +18,11 @@ function results = simulate_glucosamine(params, dose_mg, duration_weeks, formula
 %   results - Table with columns: week, time_years, GAG, JSW, JSW_change,
 %             Pain, Pain_change
 %
+% Note: R_syn, Vd_apparent, and gamma_JSW are defined in the parameter
+% structure (M01) for documentation but are not used in this implementation.
+% The PK uses a reference-scaling approach (see Section 2.7 of manuscript).
+% gamma_JSW = 1.0 is equivalent to the linear JSW = JSW_0 * (GAG/GAG_0).
+%
 % Example:
 %   [~, params, ~] = M01_model_structure();
 %   sim = simulate_glucosamine(params, 1500, 156, 'sulfate', true);
