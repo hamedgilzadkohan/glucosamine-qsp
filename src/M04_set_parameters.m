@@ -1,12 +1,12 @@
 %% =============================================================================
-%% M04_set_R_parameters.m
-%% Set Calibrated Parameters to Match R Manuscript Exactly
+%% M04_set_parameters.m
+%% Set Calibrated Parameter Values
 %% =============================================================================
 %%
-%% This script sets the calibrated parameters to EXACTLY match the R model
-%% so that MATLAB-generated figures are consistent with manuscript text.
+%% This script sets the calibrated parameter values used throughout the
+%% MATLAB pipeline for simulation, figure generation, and downstream analyses.
 %%
-%% R Calibrated Values (from calibrated_parameters_v3.xlsx):
+%% Calibrated Values:
 %%   k_syn    = 0.175258 /year
 %%   k_deg    = 0.207263 /year
 %%   Imax_deg = 1.000000 (at boundary)
@@ -15,10 +15,10 @@
 %%
 %% =============================================================================
 
-function calibration_results = M04_set_R_parameters()
+function calibration_results = M04_set_parameters()
 
     fprintf('=============================================================\n');
-    fprintf('SETTING PARAMETERS TO MATCH R MANUSCRIPT\n');
+    fprintf('SETTING CALIBRATED PARAMETER VALUES\n');
     fprintf('=============================================================\n\n');
     
     %% =============================================================================
@@ -28,21 +28,21 @@ function calibration_results = M04_set_R_parameters()
     [param_info, base_params, ~] = M01_model_structure();
     
     %% =============================================================================
-    %% 2. SET R CALIBRATED PARAMETERS
+    %% 2. SET CALIBRATED PARAMETERS
     %% =============================================================================
     
     % Start with base parameters
     calibrated_params = base_params;
     
-    % Overwrite with R calibrated values
-    % Optimized parameters from R
+    % Set calibrated values
+    % Estimated parameters
     calibrated_params.k_syn    = 0.175258;    % GAG synthesis rate (/year)
     calibrated_params.k_deg    = 0.207263;    % GAG degradation rate (/year)
     calibrated_params.Imax_deg = 1.000000;    % Max degradation inhibition
     calibrated_params.Pain_0   = 46.651892;   % Baseline pain (0-100)
     calibrated_params.Pmax     = 17.624509;   % Maximum placebo effect
     
-    % Fixed parameters from R
+    % Fixed parameters
     calibrated_params.F_sulfate   = 0.22;     % Bioavailability (crystalline sulfate)
     calibrated_params.F_HCl       = 0.11;     % Bioavailability (HCl formulation)
     calibrated_params.Vd_apparent = 200;      % Apparent volume of distribution (L)
@@ -60,7 +60,7 @@ function calibration_results = M04_set_R_parameters()
     %% 3. DISPLAY PARAMETERS
     %% =============================================================================
     
-    fprintf('CALIBRATED PARAMETERS (matched to R):\n');
+    fprintf('CALIBRATED PARAMETERS:\n');
     fprintf('  k_syn     = %.6f /year\n', calibrated_params.k_syn);
     fprintf('  k_deg     = %.6f /year\n', calibrated_params.k_deg);
     fprintf('  Imax_deg  = %.6f\n', calibrated_params.Imax_deg);
@@ -83,7 +83,7 @@ function calibration_results = M04_set_R_parameters()
     fprintf('VERIFYING MODEL PREDICTIONS\n');
     fprintf('=============================================================\n\n');
     
-    % Simulate with R parameters
+    % Simulate with calibrated parameters
     sim_p = simulate_glucosamine(calibrated_params, 1500, 156, 'sulfate', false);
     sim_t = simulate_glucosamine(calibrated_params, 1500, 156, 'sulfate', true);
     
@@ -96,7 +96,7 @@ function calibration_results = M04_set_R_parameters()
     fprintf('  Placebo change:    %.4f mm\n', y3_placebo);
     fprintf('  Treatment change:  %.4f mm\n', y3_treat);
     fprintf('  Treatment effect:  %.4f mm\n', treatment_effect);
-    fprintf('  R manuscript:      ~0.22 mm\n');
+    fprintf('  Expected:          ~0.22 mm\n');
     
     % Pain predictions
     w24_pain_placebo = sim_p.Pain(sim_p.week == 24);
@@ -113,7 +113,7 @@ function calibration_results = M04_set_R_parameters()
     calibration_results = struct();
     calibration_results.params = calibrated_params;
     calibration_results.param_info = param_info;
-    calibration_results.objective_value = 0;  % Not optimized, set to R manuscript
+    calibration_results.objective_value = 0;  % Point estimates specified; not re-optimized here
     calibration_results.par_names = {'k_syn', 'k_deg', 'Imax_deg', 'Pain_0', 'Pmax'};
     calibration_results.final_params = [calibrated_params.k_syn, ...
                                          calibrated_params.k_deg, ...
@@ -121,7 +121,7 @@ function calibration_results = M04_set_R_parameters()
                                          calibrated_params.Pain_0, ...
                                          calibrated_params.Pmax];
     calibration_results.optimization_results = {};
-    calibration_results.method = 'Fixed to R manuscript values';
+    calibration_results.method = 'Calibrated values';
     
     % Store predictions
     calibration_results.predictions.jsw_y3_placebo = y3_placebo;
@@ -147,7 +147,7 @@ function calibration_results = M04_set_R_parameters()
     fprintf('  model_output/calibrated_params.mat\n');
     fprintf('  model_output/calibration_results.mat\n');
     fprintf('=============================================================\n');
-    fprintf('\nPARAMETERS SET TO R MANUSCRIPT VALUES - READY FOR ANALYSIS\n');
+    fprintf('\nCALIBRATED PARAMETERS SET - READY FOR ANALYSIS\n');
     fprintf('=============================================================\n');
     
 end
