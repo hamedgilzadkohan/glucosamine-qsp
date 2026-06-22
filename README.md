@@ -23,7 +23,7 @@ glucosamine-qsp/
 │   ├── M01_model_structure.m    # Parameter definitions and bounds
 │   ├── M02_model_equations.m    # Model equations test
 │   ├── M03_calibration_data.m   # Calibration data assembly
-│   ├── M04_set_R_parameters.m   # Set calibrated parameter values
+│   ├── M04_set_parameters.m    # Set calibrated parameter values
 │   ├── M05_sensitivity_analysis.m  # Local sensitivity analysis
 │   ├── M06_profile_likelihood.m    # Profile likelihood for identifiability
 │   ├── M07_bootstrap_ci.m          # Bootstrap confidence intervals
