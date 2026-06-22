@@ -29,9 +29,9 @@ M02_model_equations;
 %% Step 3: Calibration Data Preparation
 fprintf('\nStep 3/17: Calibration data...\n');
 calibration_data = M03_calibration_data();
-%% Step 4: Set Calibrated Parameters (matched to R manuscript)
-fprintf('\nStep 4/17: Set R parameters...\n');
-calibration_results = M04_set_R_parameters();
+%% Step 4: Set Calibrated Parameters
+fprintf('\nStep 4/17: Set calibrated parameters...\n');
+calibration_results = M04_set_parameters();
 %% Step 5: Sensitivity Analysis
 fprintf('\nStep 5/17: Sensitivity analysis...\n');
 sensitivity_results = M05_sensitivity_analysis();
