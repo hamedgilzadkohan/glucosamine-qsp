@@ -185,7 +185,7 @@ All intermediate results are saved as `.mat` files in `model_output/`:
 
 If you use this code, please cite:
 
-Soheili M, Gilzad Kohan H. A Quantitative Systems Pharmacology Model for Glucosamine Sulfate in Knee Osteoarthritis: Mechanistic Integration of Pharmacokinetics, Cartilage Homeostasis, and Clinical Outcomes. Journal of Pharmacy and Pharmaceutical Sciences, 2026. DOI: pending
+Soheili M, Gilzad Kohan H. A mechanistic quantitative systems pharmacology framework for glucosamine sulfate in knee osteoarthritis: linking exposure, cartilage biology, and clinical outcomes. J Pharm Pharm Sci. 2026. doi: 10.3389/jpps.2026.16471
 
 ## License
 
