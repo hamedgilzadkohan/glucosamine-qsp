@@ -450,18 +450,18 @@ try
     fill([guide_pred_treat.week; flipud(guide_pred_treat.week)], ...
          [guide_pred_treat.pred_p5; flipud(guide_pred_treat.pred_p95)], ...
          col_guide_t, 'FaceAlpha', 0.3, 'EdgeColor', 'none');
-    plot(guide_pred_treat.week, guide_pred_treat.pred_mean, 'Color', col_guide_t, 'LineWidth', 2);
+    hA1 = plot(guide_pred_treat.week, guide_pred_treat.pred_mean, 'Color', col_guide_t, 'LineWidth', 2);
     
     % Model predictions with PI - Placebo
     fill([guide_pred_plac.week; flipud(guide_pred_plac.week)], ...
          [guide_pred_plac.pred_p5; flipud(guide_pred_plac.pred_p95)], ...
          col_guide_p, 'FaceAlpha', 0.3, 'EdgeColor', 'none');
-    plot(guide_pred_plac.week, guide_pred_plac.pred_mean, 'Color', col_guide_p, 'LineWidth', 2);
+    hA2 = plot(guide_pred_plac.week, guide_pred_plac.pred_mean, 'Color', col_guide_p, 'LineWidth', 2);
     
     % Observed data with error bars
-    errorbar(guide_obs_treat.week, guide_obs_treat.pain_mean, guide_obs_treat.pain_se, 'o', ...
+    hA3 = errorbar(guide_obs_treat.week, guide_obs_treat.pain_mean, guide_obs_treat.pain_se, 'o', ...
              'Color', col_guide_t, 'MarkerFaceColor', col_guide_t, 'LineWidth', 1.5);
-    errorbar(guide_obs_plac.week, guide_obs_plac.pain_mean, guide_obs_plac.pain_se, 's', ...
+    hA4 = errorbar(guide_obs_plac.week, guide_obs_plac.pain_mean, guide_obs_plac.pain_se, 's', ...
              'Color', col_guide_p, 'MarkerFaceColor', col_guide_p, 'LineWidth', 1.5);
     
     xlabel('Time (weeks)', 'FontSize', fs_axis);
@@ -469,7 +469,8 @@ try
     % FIX: Two-line title to avoid overlap with subtitle
     title({'GUIDE 2007 Trial'; 'True Placebo-Controlled External Validation'}, ...
           'FontSize', fs_title, 'FontWeight', 'bold');
-    legend({'GS 1500mg', 'Placebo'}, 'Location', 'northeast', 'FontSize', fs_legend);
+    legend([hA1, hA2, hA3, hA4], {'GS 1500 mg (predicted)', 'Placebo (predicted)', ...
+            'GS 1500 mg (observed)', 'Placebo (observed)'}, 'Location', 'northeast', 'FontSize', fs_legend-1);
     text(0, -0.12, 'A', 'Units', 'normalized', 'FontSize', 16, 'FontWeight', 'bold');
     xlim([0, 26]); ylim([10, 50]); box on; hold off;
     
@@ -479,23 +480,24 @@ try
     set(gca, 'Color', [0.95, 0.95, 0.95]);
     
     % Model prediction with PI
-    fill([moves_pred.week; flipud(moves_pred.week)], ...
+    hB1 = fill([moves_pred.week; flipud(moves_pred.week)], ...
          [moves_pred.pred_p5; flipud(moves_pred.pred_p95)], ...
          col_moves, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-    plot(moves_pred.week, moves_pred.pred_mean, '--', 'Color', col_moves, 'LineWidth', 2);
+    hB2 = plot(moves_pred.week, moves_pred.pred_mean, '--', 'Color', col_moves, 'LineWidth', 2);
     
     % Observed CS+GH
-    plot(moves_obs_comb.week, moves_obs_comb.pain_mean, '-o', 'Color', col_moves, 'MarkerFaceColor', col_moves, 'LineWidth', 2);
+    hB3 = plot(moves_obs_comb.week, moves_obs_comb.pain_mean, '-o', 'Color', col_moves, 'MarkerFaceColor', col_moves, 'LineWidth', 2);
     
     % Celecoxib reference
-    plot(moves_obs_celec.week, moves_obs_celec.pain_mean, ':^', 'Color', col_celecoxib, 'MarkerFaceColor', col_celecoxib, 'LineWidth', 1.5);
+    hB4 = plot(moves_obs_celec.week, moves_obs_celec.pain_mean, ':^', 'Color', col_celecoxib, 'MarkerFaceColor', col_celecoxib, 'LineWidth', 1.5);
     
     xlabel('Time (weeks)', 'FontSize', fs_axis);
     ylabel('WOMAC Pain Score (0-100)', 'FontSize', fs_axis);
     % FIX: Two-line title to avoid overlap with subtitle
     title({'MOVES 2015 Trial'; 'Active Comparator (No Placebo Arm)'}, ...
           'FontSize', fs_title, 'FontWeight', 'bold');
-    legend({'Model (GH only)', 'CS+GH Observed', 'Celecoxib (ref)'}, 'Location', 'northeast', 'FontSize', fs_legend-1);
+    legend([hB1, hB2, hB3, hB4], {'Model (GH only), 90% PI', 'Model (GH only), mean', ...
+            'CS+GH observed', 'Celecoxib observed'}, 'Location', 'northeast', 'FontSize', fs_legend-1);
     text(0, -0.12, 'B', 'Units', 'normalized', 'FontSize', 16, 'FontWeight', 'bold');
     xlim([0, 28]); ylim([30, 80]); box on; hold off;
     

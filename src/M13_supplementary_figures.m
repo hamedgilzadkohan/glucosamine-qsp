@@ -44,122 +44,58 @@ col_lightgray = [0.95, 0.95, 0.95];
 %% =============================================================================
 %% FIGURE S1: PROFILE LIKELIHOOD ANALYSIS
 %% =============================================================================
+%% Plotted directly from the M06 output (profile likelihood with
+%% re-optimization of the remaining parameters at each fixed value).
 
 fprintf('Generating Figure S1: Profile Likelihood Analysis...\n');
 
+S1_data = load('model_output/profile_likelihood_results.mat', 'profile_results');
+s1_pr = S1_data.profile_results;
+
+s1_names  = s1_pr.par_names;
+s1_labels = {'k_{syn} (year^{-1})', 'k_{deg} (year^{-1})', 'I_{max,deg}', ...
+             'Pain_0 (WOMAC 0-100)', 'P_{max} (WOMAC points)'};
+s1_thr = s1_pr.chi2_threshold;
+
 fig_s1 = figure('Position', [50, 50, 900, 1000], 'Color', 'w');
+s1_tl = tiledlayout(fig_s1, 3, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
 
-% Parameters to profile
-param_names = {'k_syn', 'k_deg', 'Imax_deg', 'Pain_0', 'Pmax'};
-param_labels = {'k\_syn (synthesis rate)', 'k\_deg (degradation rate)', ...
-                'Imax\_deg (max inhibition)', 'Pain\_0 (baseline pain)', ...
-                'Pmax (placebo effect)'};
-param_values = [params.k_syn, params.k_deg, params.Imax_deg, params.Pain_0, params.Pmax];
-param_ranges = {[0.08, 0.22], [0.10, 0.25], [0.5, 1.0], [35, 55], [10, 30]};
+for s1_p = 1:numel(s1_names)
+    s1_ax = nexttile(s1_tl);
+    hold(s1_ax, 'on');  box(s1_ax, 'on');
 
-% 95% CI threshold (chi-square with 1 df)
-chi2_threshold = 1.92;
+    s1_d = s1_pr.profiles.(s1_names{s1_p});
+    s1_x = s1_d.param_value;
 
-for p = 1:5
-    if p <= 4
-        subplot(3, 2, p);
-    else
-        subplot(3, 2, 5);
+    s1_hp = plot(s1_ax, s1_x, s1_d.profile_delta, '-o', 'Color', col_blue, ...
+                 'LineWidth', 1.5, 'MarkerFaceColor', col_blue, 'MarkerSize', 4);
+    s1_ht = yline(s1_ax, s1_thr, '--', 'Color', col_orange, 'LineWidth', 1.2);
+    s1_he = xline(s1_ax, s1_d.estimate, '-', 'Color', col_green, 'LineWidth', 1.5);
+
+    if s1_d.profile_found_lo
+        xline(s1_ax, s1_d.profile_ci(1), ':', 'Color', col_blue, 'LineWidth', 1.2);
     end
-    hold on;
-    set(gca, 'Color', col_lightgray);
-    
-    % Generate profile likelihood
-    pname = param_names{p};
-    pval_opt = param_values(p);
-    prange = param_ranges{p};
-    
-    n_points = 20;
-    pvals = linspace(prange(1), prange(2), n_points);
-    delta_sse = zeros(size(pvals));
-    
-    % Compute SSE at each parameter value
-    for i = 1:n_points
-        test_params = params;
-        test_params.(pname) = pvals(i);
-        
-        % Simulate and compute SSE
-        try
-            sim_p = simulate_glucosamine(test_params, 1500, 156, 'sulfate', false);
-            sim_t = simulate_glucosamine(test_params, 1500, 156, 'sulfate', true);
-            
-            % JSW SSE
-            sse_jsw = 0;
-            for j = 1:height(jsw_data)
-                week_idx = find(sim_p.week == jsw_data.week(j), 1);
-                if isempty(week_idx), week_idx = round(jsw_data.week(j)) + 1; end
-                week_idx = min(week_idx, length(sim_p.JSW_change));
-                
-                if contains(jsw_data.arm{j}, 'Placebo')
-                    pred = sim_p.JSW_change(week_idx);
-                else
-                    pred = sim_t.JSW_change(week_idx);
-                end
-                sse_jsw = sse_jsw + (jsw_data.jsw_change_mm(j) - pred)^2;
-            end
-            
-            % Pain SSE (simplified)
-            sim_p_pain = simulate_glucosamine(test_params, 1500, 24, 'HCl', false);
-            sim_t_pain = simulate_glucosamine(test_params, 1500, 24, 'HCl', true);
-            
-            sse_pain = 0;
-            for j = 1:height(womac_data)
-                week_idx = womac_data.week(j) + 1;
-                week_idx = min(week_idx, length(sim_p_pain.Pain));
-                
-                if contains(womac_data.arm{j}, 'Placebo')
-                    pred = sim_p_pain.Pain(week_idx);
-                else
-                    pred = sim_t_pain.Pain(week_idx);
-                end
-                sse_pain = sse_pain + (womac_data.womac_pain_normalized(j) - pred)^2;
-            end
-            
-            delta_sse(i) = sse_jsw + sse_pain * 0.01;  % Weight pain less
-        catch
-            delta_sse(i) = NaN;
-        end
+    if s1_d.profile_found_hi
+        xline(s1_ax, s1_d.profile_ci(2), ':', 'Color', col_blue, 'LineWidth', 1.2);
     end
-    
-    % Normalize to minimum
-    delta_sse = delta_sse - min(delta_sse);
-    
-    % Plot
-    plot(pvals, delta_sse, '-o', 'Color', col_blue, 'LineWidth', 1.5, 'MarkerFaceColor', col_blue, 'MarkerSize', 4);
-    
-    % 95% CI threshold
-    yline(chi2_threshold, '--', 'Color', col_orange, 'LineWidth', 1.5);
-    text(prange(2)*0.98, chi2_threshold*1.1, '95% CI threshold', 'Color', col_orange, ...
-         'HorizontalAlignment', 'right', 'FontSize', 8);
-    
-    % Optimal value
-    xline(pval_opt, '-', 'Color', col_green, 'LineWidth', 2);
-    
-    % CI bounds (where delta_sse crosses threshold)
-    ci_mask = delta_sse <= chi2_threshold;
-    if any(ci_mask)
-        ci_vals = pvals(ci_mask);
-        xline(min(ci_vals), ':', 'Color', col_gray, 'LineWidth', 1);
-        xline(max(ci_vals), ':', 'Color', col_gray, 'LineWidth', 1);
+
+    ylim(s1_ax, [0, max([4 * s1_thr, 1.1 * max(s1_d.profile_delta, [], 'omitnan')])]);
+    xlim(s1_ax, [min(s1_x), max(s1_x)]);
+    xlabel(s1_ax, s1_labels{s1_p});
+    ylabel(s1_ax, '\Delta objective');
+
+
+    if s1_p == 1
+        legend(s1_ax, [s1_hp, s1_ht, s1_he], ...
+            {'Profile likelihood', '95% threshold (1.92)', 'Best-fit estimate'}, ...
+            'Location', 'north', 'FontSize', 8, 'Box', 'off');
     end
-    
-    xlabel('Parameter Value', 'FontSize', 10);
-    ylabel('\Delta SSE', 'FontSize', 10);
-    title(param_labels{p}, 'FontSize', 11, 'FontWeight', 'bold');
-    xlim(prange);
-    box on;
-    hold off;
 end
 
-sgtitle('Figure S1. Profile Likelihood Analysis for Parameter Identifiability', ...
-        'FontSize', 14, 'FontWeight', 'bold');
+title(s1_tl, 'Figure S1. Profile Likelihood Analysis for Parameter Identifiability', ...
+      'FontSize', 12, 'FontWeight', 'bold');
 
-saveas(fig_s1, 'figures/FigS1_profile_likelihood.png');
+exportgraphics(fig_s1, 'figures/FigS1_profile_likelihood.png', 'Resolution', 300);
 saveas(fig_s1, 'figures/FigS1_profile_likelihood.fig');
 fprintf('  Saved: figures/FigS1_profile_likelihood.png\n');
 
@@ -561,8 +497,8 @@ plot(kpl_values, pain_values, '-o', 'Color', col_blue, 'LineWidth', 2, ...
      'MarkerFaceColor', col_orange, 'MarkerEdgeColor', col_orange, 'MarkerSize', 8);
 
 % Observed line
-yline(30.2, '--', 'Color', col_gray, 'LineWidth', 1.5);
-text(0.3, 30.5, 'Observed = 30.2', 'Color', col_gray, 'FontSize', 10);
+yline(28.6, '--', 'Color', col_gray, 'LineWidth', 1.5);   % GAIT Week 24 placebo (observed)
+text(0.3, 28.9, 'Observed = 28.6', 'Color', col_gray, 'FontSize', 10);
 
 % Labels
 text(0.008, 26, 'Physiological', 'Color', [0, 0.5, 0], 'FontSize', 9, 'FontAngle', 'italic');
@@ -581,7 +517,7 @@ text(0.98, 0.95, 'Note: Pain plateaus at high k_{pl} (''sloppy'' beyond ~0.05)',
      'HorizontalAlignment', 'right', 'VerticalAlignment', 'top');
 
 xlim([0.001, 10]);
-ylim([28, 40]);
+ylim([26, 40]);
 box on;
 hold off;
 
